@@ -1,0 +1,14 @@
+{
+  "name": "mtaeta",
+  "version": "1.0.0",
+  "description": "simple ETA app",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Terence Buchannan",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^1.7.8"
+  }
+}
