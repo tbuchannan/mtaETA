@@ -1,6 +1,6 @@
 # mtaETA
 
-Cross platform, MTA Subway scheduling application built on Electron.
+Cross platform, MTA Subway scheduling desktop application built on Electron.
 
 #### version
 1.7.8
