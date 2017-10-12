@@ -1,7 +1,6 @@
 const {app, BrowserWindow} = require('electron');
 const path = require('path');
 const url = require('url');
-
 let win;
 
 function createWindow() {
@@ -14,7 +13,6 @@ function createWindow() {
   }));
 
   win.webContents.openDevTools();
-
 
   win.on('closed', () => {
     win = null;
