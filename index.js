@@ -77,20 +77,14 @@ const getTrains = (stations) =>{
       feed.entity.forEach(function(entity) {
         // if it has a trip_update
         if(entity.trip_update){
-          // grab FIRST stop_time_update
-
           let nextStops = entity.trip_update.stop_time_update;
-
+          // iterate over all of a trains upcoming stops
           nextStops.forEach((stop)=>{
-            // console.log(`Stop: ${stop.stop_id}`);
-            // let parentStation = stopsObject[stop.stop_id].parent_station;
-
             // stop_id includes N or S
             let formattedStation = stop.stop_id.slice(0, -1);
-
+            // if upcoming stop is a nearbyStation push its ETA into ETA obj
             if(nearbyStations[formattedStation]){
               let arrivalTime = stop.arrival.time.low;
-              // add arrival time to nearbyStationsETA object
               nearbyStationsETA[formattedStation].push(arrivalTime);
             }
           });
