@@ -3,30 +3,26 @@ const GtfsRealtimeBindings = require('gtfs-realtime-bindings');
 const csv = require('csvtojson');
 const request = require('request');
 const tripsCSVFilePath = './csv/trips.csv';
-const mapDims = 0.006;
-const apiKey = '5478c04ea5da79c1c75aa912a1fb9fd9'
+const stopsCSVFilePath = './csv/stops.csv';
 
+const mapDims = 0.006;
+const apiKey = '5478c04ea5da79c1c75aa912a1fb9fd9';
+
+/* Feed Request Settings */
+let requestSettings = {
+  method: 'GET',
+  url: `http://datamine.mta.info/mta_esi.php?key=${apiKey}&feed_id=2`,
+  encoding: null
+};
+
+/* Train, Trip, Station Objects */
 let stationObject = {};
 let nearbyStations = {};
 let tripsObject = {};
+let nearbyStationsETA = {};
+let stopsObject = {};
 
-
-
-// populate stationObject using MTA Station Locations CSV
-csv()
-  .fromStream(request.get('http://web.mta.info/developers/data/nyct/subway/Stations.csv'))
-  .on('json', (obj) => {
-  stationObject[obj['Station ID']] = obj;
-});
-
-// populate tripsObject using csv downloaded from MTA Static Data Feed Subway CSV
-csv()
-  .fromFile(tripsCSVFilePath)
-  .on('json', (obj) =>{
-  tripsObject[obj["trip_id"]] = obj;
-});
-
-
+/* Event Listeners */
 $('#locate_button').on('click', (e)=>{
   e.preventDefault();
   $.get('http://ip-api.com/json',(data) => {
@@ -34,50 +30,74 @@ $('#locate_button').on('click', (e)=>{
     });
 });
 
-// populate nearbyStations by iterating over the stationObject and keeping stations within a desired range
-const getNearbyStations = (data) => {
+/* Populate Train, Trip, Station Objects */
+csv()
+  .fromStream(request.get('http://web.mta.info/developers/data/nyct/subway/Stations.csv'))
+  .on('json', (obj) => {
+  stationObject[obj["GTFS Stop ID"]] = obj;
+});
 
+csv()
+  .fromFile(tripsCSVFilePath)
+  .on('json', (obj) =>{
+  tripsObject[obj["trip_id"]] = obj;
+});
+
+csv()
+  .fromFile(stopsCSVFilePath)
+  .on('json', (obj) =>{
+  stopsObject[obj["stop_id"]] = obj;
+});
+
+/* Populate Nearby Trains Object */
+const getNearbyStations = (data) => {
+  data.lat = 40.703811;
+  data.lon = -73.918425;
   for(let id in stationObject){
     if (id){
       let stationLat = parseFloat(stationObject[id]["GTFS Latitude"]);
       let stationLong = parseFloat(stationObject[id]["GTFS Longitude"]);
       if ((Math.abs(stationLat - data.lat) <= mapDims) && (Math.abs(stationLong - data.lon) <= mapDims))  {
-        nearbyStations[stationObject[id]["Station ID"]] = stationObject[id];
+        let stopId = stationObject[id]["GTFS Stop ID"];
+        nearbyStations[stopId] = stationObject[id];
+        nearbyStationsETA[stopId] = [];
       }
     }
   }
   getTrains(nearbyStations);
 };
 
-// populate
+/* Populate nearbyStationsETA */
 const getTrains = (stations) =>{
-  let requestSettings = {
-    method: 'GET',
-    url: `http://datamine.mta.info/mta_esi.php?key=${apiKey}&feed_id=2`,
-    encoding: null
-  };
-
   let feed;
   request(requestSettings, function (error, response, body) {
     if (!error && response.statusCode === 200) {
       feed = GtfsRealtimeBindings.FeedMessage.decode(body);
+      // iterate over all of the trains
       feed.entity.forEach(function(entity) {
-        // iterate over all of the trains
-          // if it has a trip_update and stop_time_update
-            // grab FIRST stop_time_update
-              // get the stop_id
-              // CHECK STOPS OBJECT[ITEM]
-                // IF  ITEM.PARENT_STOP !== 1
-                  //GRAB STOP_PBJECT[ITEM.PARENT]
-            // grab trip_id and store in object?
-        if (entity.trip_update) {
-          // console.log(entity.trip_update);
+        // if it has a trip_update
+        if(entity.trip_update){
+          // grab FIRST stop_time_update
+
+          let nextStops = entity.trip_update.stop_time_update;
+
+          nextStops.forEach((stop)=>{
+            // console.log(`Stop: ${stop.stop_id}`);
+            // let parentStation = stopsObject[stop.stop_id].parent_station;
+
+            // stop_id includes N or S
+            let formattedStation = stop.stop_id.slice(0, -1);
+
+            if(nearbyStations[formattedStation]){
+              let arrivalTime = stop.arrival.time.low;
+              // add arrival time to nearbyStationsETA object
+              nearbyStationsETA[formattedStation].push(arrivalTime);
+            }
+          });
         }
       });
     }
   });
-  // debugger
-
 };
 
 // String to JSON parser
