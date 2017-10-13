@@ -11,7 +11,7 @@ const apiKey = '5478c04ea5da79c1c75aa912a1fb9fd9';
 /* Feed Request Settings */
 let requestSettings = {
   method: 'GET',
-  url: `http://datamine.mta.info/mta_esi.php?key=${apiKey}&feed_id=2`,
+  url: `http://datamine.mta.info/mta_esi.php?key=${apiKey}&feed_id=16`,
   encoding: null
 };
 
@@ -51,8 +51,8 @@ csv()
 
 /* Populate Nearby Trains Object */
 const getNearbyStations = (data) => {
-  data.lat = 40.703811;
-  data.lon = -73.918425;
+  // data.lat = 40.703811;
+  // data.lon = -73.918425;
   for(let id in stationObject){
     if (id){
       let stationLat = parseFloat(stationObject[id]["GTFS Latitude"]);
@@ -64,11 +64,11 @@ const getNearbyStations = (data) => {
       }
     }
   }
-  getTrains(nearbyStations);
+  getIncomingTrains(nearbyStations);
 };
 
 /* Populate nearbyStationsETA */
-const getTrains = (stations) =>{
+const getIncomingTrains = (stations) =>{
   let feed;
   request(requestSettings, function (error, response, body) {
     if (!error && response.statusCode === 200) {
