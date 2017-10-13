@@ -51,8 +51,8 @@ csv()
 
 /* Populate Nearby Trains Object */
 const getNearbyStations = (data) => {
-  data.lat = 40.703811;
-  data.lon = -73.918425;
+  // data.lat = 40.703811;
+  // data.lon = -73.918425;
   for(let id in stationObject){
     if (id){
       let stationLat = parseFloat(stationObject[id]["GTFS Latitude"]);
