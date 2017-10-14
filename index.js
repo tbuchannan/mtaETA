@@ -21,7 +21,11 @@ let nearbyStations = {};
 let tripsObject = {};
 let nearbyStationsETA = {};
 let stopsObject = {};
-
+let feedObject = {1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, A: 26, C: 26, E: 26,
+  N: 16, Q: 16, R: 16, W: 16, B: 21, D: 21, F: 21, M: 21, L: 2, G: 31};
+let feeds = "";
+let feedStr = "";
+let routes = {};
 /* Add Event Listeners */
 $('#locate_button').on('click', (e) => {
   e.preventDefault();
@@ -64,12 +68,16 @@ const getNearbyStations = (data) => {
       }
     }
   }
+  getRoutes(nearbyStations);
   getIncomingTrains(nearbyStations);
 };
 
 /* Populate nearbyStationsETA */
-const getIncomingTrains = (stations) =>{
+const getIncomingTrains = (stations) => {
   let feed;
+
+
+
   request(requestSettings, (error, response, body) => {
     if (!error && response.statusCode === 200) {
       feed = GtfsRealtimeBindings.FeedMessage.decode(body);
@@ -95,6 +103,25 @@ const getIncomingTrains = (stations) =>{
 
 
 };
+
+/* populate Feeds Array */
+const getRoutes = (stations) => {
+  feedStr = "";
+  for (let key in stations) {
+    feedStr += stations[key]["Daytime Routes"] + " ";
+  }
+
+  feedStr = feedStr.split(" ");
+  feedStr.pop();
+
+  for (let i = 0;  i < feedStr.length; i++) {
+    let routeLetter = feedStr[i];
+    let route = feedObject[routeLetter];
+    routes[route] = route;
+  }
+
+};
+
 
 /* Compare station times */
 
