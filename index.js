@@ -9,7 +9,9 @@ const northBound = "N";
 const southBound = "S";
 const mapDims = 0.006;
 const apiKey = '5478c04ea5da79c1c75aa912a1fb9fd9';
-const displayCount = 0;
+
+var displayCount = 0;
+let callsRemaining = 0;
 
 /* Feed Request Settings */
 let requestSettings = {
@@ -85,16 +87,6 @@ const getNearbyStations = (data) => {
   getRoutes();
 };
 
-
-
-/* Populate nearbyStationsETA */
-const getIncomingTrains = () => {
-  for (let feedId in feedsToCall) {
-    requestSettings['url'] = `http://datamine.mta.info/mta_esi.php?key=${apiKey}&feed_id=${feedId}`;
-    makeRequest();
-  }
-};
-
 /* Populate Feeds Array */
 const getRoutes = () => {
   let feedStr = "";
@@ -106,11 +98,24 @@ const getRoutes = () => {
     let routeLetter = feedStr[i];
     let feedId = feedObject[routeLetter];
 
-    if (feedsToCall[feedId] === undefined){
+    if (feedsToCall[feedId] === undefined && feedId !== '7'){
       feedsToCall[feedId] = true;
     }
   }
+  displayCount = Object.keys(feedsToCall).length;
   getIncomingTrains();
+};
+
+
+
+/* Populate nearbyStationsETA */
+const getIncomingTrains = () => {
+  for (let feedId in feedsToCall) {
+    requestSettings['url'] = `http://datamine.mta.info/mta_esi.php?key=${apiKey}&feed_id=${feedId}`;
+    displayCount -= 1;
+    console.log(displayCount);
+    makeRequest();
+  }
 };
 
 /* Call all feeds */
@@ -139,28 +144,16 @@ const makeRequest = () => {
         }
       });
     }
-    display();
+    if (displayCount <= 0){ display(); }
   });
 };
 
-const display = () => {
-  for(let key in nearbyStationsETA){
-    let train = $(`.${key}`);
-    let stuff = $(".display");
-    if (train.length < 1){
-      if (nearbyStationsETA[key].length > 0){
-        let el = $(`<div class=${key}>${JSON.stringify(nearbyStationsETA[key][0])}</div>`);
-        let el2 = $(`<div class=${key}>${JSON.stringify(nearbyStationsETA[key][1])}</div>`);
-        stuff.append(el);
-        stuff.append(el2);
-      }
-    }
-  }
-
-};
 /* Compare station times */
 
 const populateNearByStation = (station, stop, destination) => {
+  let now = new Date();
+  let arrival = new Date(stop.arrival.time.low * 1000);
+  let timeInSeconds = now - arrival;
   let currStationObj = {
     arrival: stop.arrival.time.low,
     destination: stopsObject[destination.stop_id].stop_name,
@@ -182,6 +175,27 @@ const populateNearByStation = (station, stop, destination) => {
     nearbyStationsETA[station][1] = currStationObj;
   }
 };
+
+const display = () => {
+  for(let key in nearbyStationsETA){
+    let train = $(`.${key}`);
+    let stuff = $(".display");
+    if (train.length < 1){
+      if (nearbyStationsETA[key].length > 0){
+        let el = $(`<div class=${key}>${JSON.stringify(nearbyStationsETA[key][0])}</div>`);
+        let el2 = $(`<div class=${key}>${JSON.stringify(nearbyStationsETA[key][1])}</div>`);
+        stuff.append(el);
+        stuff.append(el2);
+      }
+      }
+      else{
+        train[0].innerText = JSON.stringify(nearbyStationsETA[key][0]);
+        train[1].innerText = JSON.stringify(nearbyStationsETA[key][1]);
+    }
+  }
+
+};
+
 
 /* String to JSON parser */
 const createStationJSON = (csvArray) => {
