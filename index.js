@@ -146,7 +146,9 @@ const populateNearByStation = (station, stop, destination) => {
   let arrival = new Date(stop.arrival.time.low * 1000);
   let timeInSeconds = (arrival - now) / 1000;
   let parsedTime = Number((timeInSeconds/60).toFixed(2));
-  parsedTime = parsedTime < 0 ? 0 : parsedTime;
+  if (parsedTime < 0){
+    return;
+  }
 
   let currStationObj = {
     arrival: parsedTime,
@@ -169,7 +171,6 @@ const populateNearByStation = (station, stop, destination) => {
 
 const display = () => {
   for(let key in nearbyStationsETA){
-
     let train = $(`.${key}`);
     let stuff = $(".display");
     if (train.length < 1 && nearbyStationsETA[key].length > 0){
