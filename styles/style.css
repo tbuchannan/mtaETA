@@ -23,7 +23,7 @@
   display: flex;
 }
 
-.fa .fa-subway {
+.fa, .fa-subway {
   font-size: 38px;
   margin-top: 12px;
 }
