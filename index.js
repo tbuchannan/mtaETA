@@ -22,6 +22,7 @@ let requestSettings = {
 /* Train, Trip, Station Objects */
 let allStations = {};
 let stopsObject = {};
+let stationsETA = {};
 
 let nearbyStations = {};
 let nearbyStationsETA = {};
@@ -76,6 +77,9 @@ const getNearbyStations = (data) => {
         let northID = stopId + northBound;
         let southID = stopId + southBound;
         nearbyStations[stopId] = allStations[id];
+
+        stationsETA[allStations[id]["Stop Name"]] = {};
+
         nearbyStationsETA[northID] = [];
         nearbyStationsETA[southID] = [];
     }
@@ -140,44 +144,57 @@ const makeRequest = () => {
         }
       });
     }
-    if (displayCount <= 0){ display(); }
   });
+  if (displayCount <= 0){ display(); }
 };
 
 /* Compare station times */
-
 const populateNearByStation = (station, stop, destination, stopName) => {
   if (stop.arrival){
     let now = new Date();
     let arrival = new Date(stop.arrival.time.low * 1000);
     let timeInSeconds = (arrival - now) / 1000;
     let parsedTime = Number((timeInSeconds/60).toFixed(2));
+    let first;
+    let second;
     if (parsedTime < 0){
       return;
     }
-
+    /* Template object */
     let currStationObj = {
-      eta: parsedTime,
-      time: arrival.toLocaleTimeString(),
-      destination: stopsObject[destination.stop_id].stop_name,
-      stop_name: station,
-      stopName: stopName
+        stopName: stopName,
+        destination: stopsObject[destination.stop_id].stop_name,
+        arrival: arrival.toLocaleTimeString(),
+        station: station
+
     };
 
-    let first = nearbyStationsETA[station][0];
-    let second = nearbyStationsETA[station][1];
+    /* Check StationsETA Object to see if station key exists */
+    if (stationsETA[stopName][station]){
+      first = stationsETA[stopName][station][0];
+      second = stationsETA[stopName][station][1];
+    } else {
+      first = stationsETA[stopName][station] = [];
+      second = stationsETA[stopName][station] = [];
+    }
+
+
+
     let currArrival = currStationObj.arrival;
 
     if (first === undefined || currArrival < first.arrival ){
-      nearbyStationsETA[station][1] = first;
-      nearbyStationsETA[station][0] = currStationObj;
+      stationsETA[stopName][station][1] = first;
+      stationsETA[stopName][station][0] = currStationObj;
     } else if (second === undefined || currArrival < second.arrival) {
-      nearbyStationsETA[station][1] = currStationObj;
+      stationsETA[stopName][station][1] = currStationObj;
     }
   }
 };
 
 const display = () => {
+// sort the stations ETA here after you have them all.
+
+  console.log(displayCount + 1);
   for(let key in nearbyStationsETA){
     let train = $(`.${key}`);
     let stuff = $(".display");
