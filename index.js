@@ -127,9 +127,14 @@ const makeRequest = () => {
             let stationId = stop.stop_id;
             let formattedStationID = stationId.slice(0, -1);
             let destination = allStops[allStops.length - 1];
-
+            let stopName;
+            try {
+              stopName = allStations[formattedStationID]["Stop Name"];
+            } catch (e) {
+              stopName = "";
+            }
             if(nearbyStations[formattedStationID]){
-              populateNearByStation(stationId, stop, destination);
+              populateNearByStation(stationId, stop, destination, stopName);
             }
           });
         }
@@ -141,31 +146,34 @@ const makeRequest = () => {
 
 /* Compare station times */
 
-const populateNearByStation = (station, stop, destination) => {
-  let now = new Date();
-  let arrival = new Date(stop.arrival.time.low * 1000);
-  let timeInSeconds = (arrival - now) / 1000;
-  let parsedTime = Number((timeInSeconds/60).toFixed(2));
-  if (parsedTime < 0){
-    return;
-  }
+const populateNearByStation = (station, stop, destination, stopName) => {
+  if (stop.arrival){
+    let now = new Date();
+    let arrival = new Date(stop.arrival.time.low * 1000);
+    let timeInSeconds = (arrival - now) / 1000;
+    let parsedTime = Number((timeInSeconds/60).toFixed(2));
+    if (parsedTime < 0){
+      return;
+    }
 
-  let currStationObj = {
-    arrival: parsedTime,
-    time: arrival.toLocaleTimeString(),
-    destination: stopsObject[destination.stop_id].stop_name,
-    stop_name: station,
-  };
+    let currStationObj = {
+      eta: parsedTime,
+      time: arrival.toLocaleTimeString(),
+      destination: stopsObject[destination.stop_id].stop_name,
+      stop_name: station,
+      stopName: stopName
+    };
 
-  let first = nearbyStationsETA[station][0];
-  let second = nearbyStationsETA[station][1];
-  let currArrival = currStationObj.arrival;
+    let first = nearbyStationsETA[station][0];
+    let second = nearbyStationsETA[station][1];
+    let currArrival = currStationObj.arrival;
 
-  if (first === undefined || currArrival < first.arrival || first === 0){
-    nearbyStationsETA[station][1] = first;
-    nearbyStationsETA[station][0] = currStationObj;
-  } else if (second === undefined || currArrival < second.arrival || second === 0) {
-    nearbyStationsETA[station][1] = currStationObj;
+    if (first === undefined || currArrival < first.arrival ){
+      nearbyStationsETA[station][1] = first;
+      nearbyStationsETA[station][0] = currStationObj;
+    } else if (second === undefined || currArrival < second.arrival) {
+      nearbyStationsETA[station][1] = currStationObj;
+    }
   }
 };
 
@@ -174,8 +182,11 @@ const display = () => {
     let train = $(`.${key}`);
     let stuff = $(".display");
     if (train.length < 1 && nearbyStationsETA[key].length > 0){
-        stuff.append($(`<div class=${key}>${JSON.stringify(nearbyStationsETA[key][0])}</div>`));
-        stuff.append($(`<div class=${key}>${JSON.stringify(nearbyStationsETA[key][1])}</div>`));
+      for(let i = 0; i < nearbyStationsETA[key].length; i++) {
+        let el = $(`<div class=${key}>${JSON.stringify(nearbyStationsETA[key][i])}</div>`);
+        el.addClass('trains');
+        stuff.append(el).hide().fadeIn();
+      }
     } else if (nearbyStationsETA[key][0] !== undefined && nearbyStationsETA[key][1] !== undefined){
         train[0].innerText = JSON.stringify(nearbyStationsETA[key][0]);
         train[1].innerText = JSON.stringify(nearbyStationsETA[key][1]);
