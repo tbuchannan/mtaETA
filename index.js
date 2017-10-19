@@ -10,8 +10,7 @@ const southBound = "S";
 const mapDims = 0.006;
 const apiKey = '5478c04ea5da79c1c75aa912a1fb9fd9';
 
-var displayCount = 0;
-let callsRemaining = 0;
+let displayCount = 0;
 
 /* Feed Request Settings */
 let requestSettings = {
@@ -23,6 +22,8 @@ let requestSettings = {
 let allStations = {};
 let stopsObject = {};
 let stationsETA = {};
+let doneParsingStation = false;
+let doneParsingStops = false;
 
 let nearbyStations = {};
 let nearbyStationsETA = {};
@@ -42,28 +43,34 @@ csv()
   .fromFile(stationsCSVFilePath)
   .on('json', (obj) => {
   allStations[obj["GTFS Stop ID"]] = obj;
+}).on('done', (e) =>{
+  doneParsingStation = true;
+  start();
 });
 
 csv()
   .fromFile(stopsCSVFilePath)
   .on('json', (obj) =>{
   stopsObject[obj["stop_id"]] = obj;
+}).on('done', (e) =>{
+  doneParsingStops = true;
+  start();
 });
 
-$(() => {
-  start();
-  setInterval(start, 60000);
-});
 
 const start = () => {
-  let now = new Date();
-  $('.update').empty();
-  $('.update').append(`<h3> Updated On: ${now.toLocaleDateString()} at: ${now.toLocaleTimeString()}</h3>`);
-
-  $.get('http://ip-api.com/json',(data) => {
+  if(doneParsingStops && doneParsingStation){
+    let now = new Date();
+    $('.update').empty();
+    $('.update').append(`<h3> Updated On: ${now.toLocaleDateString()} at: ${now.toLocaleTimeString()}</h3>`);
+    $.get('http://ip-api.com/json',(data) => {
       getNearbyStations(data);
     });
+    setTimeout(start, 60000);
+  }
 };
+
+
 
 /* Populate nearbyStations Object */
 const getNearbyStations = (data) => {
@@ -145,7 +152,7 @@ const makeRequest = () => {
       });
     }
   });
-  if (displayCount <= 0){ display(); }
+  display();
 };
 
 /* Compare station times */
@@ -193,20 +200,23 @@ const populateNearByStation = (station, stop, destination, stopName) => {
 
 const display = () => {
 // sort the stations ETA here after you have them all.
-
-  console.log(displayCount + 1);
-  for(let key in nearbyStationsETA){
-    let train = $(`.${key}`);
     let stuff = $(".display");
-    if (train.length < 1 && nearbyStationsETA[key].length > 0){
-      for(let i = 0; i < nearbyStationsETA[key].length; i++) {
-        let el = $(`<div class=${key}>${JSON.stringify(nearbyStationsETA[key][i])}</div>`);
-        el.addClass('trains');
-        stuff.append(el).hide().fadeIn();
-      }
-    } else if (nearbyStationsETA[key][0] !== undefined && nearbyStationsETA[key][1] !== undefined){
-        train[0].innerText = JSON.stringify(nearbyStationsETA[key][0]);
-        train[1].innerText = JSON.stringify(nearbyStationsETA[key][1]);
-      }
-    }
+
+  for(let key in stationsETA){
+    let train = $(`.${key}`);
+    let obj = stationsETA[key];
+    stuff.append(JSON.stringify(obj));
+  }
+  // for(let key in nearbyStationsETA){
+  //   if (train.length < 1 && nearbyStationsETA[key].length > 0){
+  //     for(let i = 0; i < nearbyStationsETA[key].length; i++) {
+  //       let el = $(`<div class=${key}>${JSON.stringify(nearbyStationsETA[key][i])}</div>`);
+  //       el.addClass('trains');
+  //       stuff.append(el).hide().fadeIn();
+  //     }
+  //   } else if (nearbyStationsETA[key][0] !== undefined && nearbyStationsETA[key][1] !== undefined){
+  //       train[0].innerText = JSON.stringify(nearbyStationsETA[key][0]);
+  //       train[1].innerText = JSON.stringify(nearbyStationsETA[key][1]);
+  //     }
+  //   }
 };
