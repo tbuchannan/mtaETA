@@ -15,10 +15,17 @@
 
 .header {
   font-family: 'Monoton', cursive;
+  display: inline;
+
 }
 
-.display {
+.title_bar {
+  display: flex;
+}
 
+.fa .fa-subway {
+  font-size: 38px;
+  margin-top: 12px;
 }
 
 .trains {
