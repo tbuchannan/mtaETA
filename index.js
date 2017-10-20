@@ -61,9 +61,24 @@ csv()
 const start = () => {
   if(doneParsingStops && doneParsingStation){
     let now = new Date();
-    $('.update').empty();
-    $('.update').append(`<h3> Updated On: ${now.toLocaleDateString()} at: ${now.toLocaleTimeString()}</h3>`);
-    $.get('http://ip-api.com/json',(data) => {
+    let updateDiv = document.querySelector('.update');
+    let updateString ="Updated On: " + now.toLocaleDateString() + " at: "+ now.toLocaleTimeString();
+    let child = updateDiv.firstChild;
+
+    let header = document.createElement("div");
+    header.className += "headerText";
+    header.innerText = updateString;
+
+    if (!child) {
+      updateDiv.append(header);
+    } else{
+      updateDiv.replaceChild(header, child);
+    }
+
+
+    fetch('http://ip-api.com/json')
+      .then((resp) => resp.json())
+      .then((data) => {
       getNearbyStations(data);
     });
     setTimeout(start, 60000);
@@ -197,19 +212,27 @@ const populateNearByStation = (station, stop, destination, stopName) => {
 
 const display = () => {
 // sort the stations ETA here after you have them all.
-    let stuff = $(".display");
+
+  let item;
+  let parent = document.querySelector('.display');
 
   for(let key in stationsETA){
     let formattedKey = key.split(/[\s-]+/).join("_");
-    let train = $(`.${formattedKey}`);
-    let obj = stationsETA[key];
-    let el = $(`<div class=${key}>${JSON.stringify(obj)}`);
-    let item;
-    if (train.length < 1){
-      item = $(`<div class=${formattedKey}>${key}</div>`);
+    let train = document.getElementsByClassName(`${formattedKey}`);
+    // let el = $(`<div class=${key}>${JSON.stringify(obj)}`);
+    if (train.length < 1 ){
+       item = document.createElement('div');
+       item.className += ` ${formattedKey}`;
+       let name = document.createTextNode(key);
+       item.appendChild(name);
+       parent.append(item);
+     }
+    for(let stop in stationsETA[key]){
+      let stopName = document.createElement("div");
+      let s;
     }
 
-    stuff.append(item);
+
   }
   // for(let key in nearbyStationsETA){
   //   if (train.length < 1 && nearbyStationsETA[key].length > 0){
