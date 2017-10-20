@@ -84,8 +84,8 @@ const getNearbyStations = (data) => {
         let northID = stopId + northBound;
         let southID = stopId + southBound;
         nearbyStations[stopId] = allStations[id];
-
-        stationsETA[allStations[id]["Stop Name"]] = {};
+        let stopName = allStations[id]["Stop Name"];
+        stationsETA[stopName] = {};
 
         nearbyStationsETA[northID] = [];
         nearbyStationsETA[southID] = [];
@@ -173,7 +173,6 @@ const populateNearByStation = (station, stop, destination, stopName) => {
         destination: stopsObject[destination.stop_id].stop_name,
         arrival: arrival.toLocaleTimeString(),
         station: station
-
     };
 
     /* Check StationsETA Object to see if station key exists */
@@ -184,8 +183,6 @@ const populateNearByStation = (station, stop, destination, stopName) => {
       first = stationsETA[stopName][station] = [];
       second = stationsETA[stopName][station] = [];
     }
-
-
 
     let currArrival = currStationObj.arrival;
 
@@ -203,9 +200,16 @@ const display = () => {
     let stuff = $(".display");
 
   for(let key in stationsETA){
-    let train = $(`.${key}`);
+    let formattedKey = key.split(/[\s-]+/).join("_");
+    let train = $(`.${formattedKey}`);
     let obj = stationsETA[key];
-    stuff.append(JSON.stringify(obj));
+    let el = $(`<div class=${key}>${JSON.stringify(obj)}`);
+    let item;
+    if (train.length < 1){
+      item = $(`<div class=${formattedKey}>${key}</div>`);
+    }
+
+    stuff.append(item);
   }
   // for(let key in nearbyStationsETA){
   //   if (train.length < 1 && nearbyStationsETA[key].length > 0){
