@@ -1,7 +1,7 @@
 const button = document.getElementById('locate_button');
 const GtfsRealtimeBindings = require('gtfs-realtime-bindings');
 const csv = require('csvtojson');
-const request = require('request');
+const request = require('request-promise');
 const tripsCSVFilePath = './csv/trips.csv';
 const stopsCSVFilePath = './csv/stops.csv';
 const stationsCSVFilePath = './csv/stations.csv';
@@ -9,8 +9,7 @@ const northBound = "N";
 const southBound = "S";
 const mapDims = 0.006;
 const apiKey = '5478c04ea5da79c1c75aa912a1fb9fd9';
-
-let displayCount = 0;
+var Promise = require('es6-promise').Promise;
 
 /* Feed Request Settings */
 let requestSettings = {
@@ -37,6 +36,7 @@ let feedObject = {
   G: 31
 };
 let feedsToCall = {};
+let feedstoCallArr = [];
 
 /* Populate Train, Station Objects */
 csv()
@@ -111,6 +111,8 @@ const getNearbyStations = (data) => {
 
 /* Populate Feeds Array */
 const getRoutes = () => {
+  feedsToCall = {};
+  feedstoCallArr = [];
   let feedStr = "";
   for (let key in nearbyStations) {
     feedStr += nearbyStations[key]["Daytime Routes"] + " ";
@@ -122,52 +124,55 @@ const getRoutes = () => {
 
     if (feedsToCall[feedId] === undefined && feedId !== '7'){
       feedsToCall[feedId] = true;
+      feedstoCallArr.push(feedId);
     }
   }
-  displayCount = Object.keys(feedsToCall).length;
-  getIncomingTrains();
+  getIncomingTrains(feedstoCallArr);
 };
 
 /* Populate nearbyStationsETA */
-const getIncomingTrains = () => {
-  for (let feedId in feedsToCall) {
-    requestSettings['url'] = `http://datamine.mta.info/mta_esi.php?key=${apiKey}&feed_id=${feedId}`;
-    displayCount -= 1;
-    makeRequest();
+const getIncomingTrains = (arr) => {
+  let promises = [];
+  for (let i = 0; i < arr.length; i++){
+    requestSettings['url'] = `http://datamine.mta.info/mta_esi.php?key=${apiKey}&feed_id=${arr[i]}`;
+    promises.push(request(requestSettings));
   }
+
+  Promise.all(promises).then((items) =>{
+    for(let i = 0; i < items.length; i++){
+      let feed = GtfsRealtimeBindings.FeedMessage.decode(items[i]);
+      parseData(feed);
+    }
+  }).then(()=>{
+    display();
+  });
 };
 
 /* Call all feeds */
-const makeRequest = () => {
-  let feed;
-  request(requestSettings, (error, response, body) => {
-    if (!error && response.statusCode === 200) {
-      feed = (GtfsRealtimeBindings.FeedMessage.decode(body));
-      // iterate over all of the trains
-      feed.entity.forEach((train) => {
-        // if it has scheduled stops
-        if(train.trip_update){
-          let nextStops = train.trip_update.stop_time_update;
-          // iterate over all of a trains scheduled stops
-          nextStops.forEach((stop, _ ,allStops) => {
-            let stationId = stop.stop_id;
-            let formattedStationID = stationId.slice(0, -1);
-            let destination = allStops[allStops.length - 1];
-            let stopName;
-            try {
-              stopName = allStations[formattedStationID]["Stop Name"];
-            } catch (e) {
-              stopName = "";
-            }
-            if(nearbyStations[formattedStationID]){
-              populateNearByStation(stationId, stop, destination, stopName);
-            }
-          });
+const parseData = (data) => {
+  // iterate over all of the trains
+  data.entity.forEach((train) => {
+    // if it has scheduled stops
+    if(train.trip_update){
+      let nextStops = train.trip_update.stop_time_update;
+      // iterate over all of a trains scheduled stops
+      nextStops.forEach((stop, _ ,allStops) => {
+        let stationId = stop.stop_id;
+        let formattedStationID = stationId.slice(0, -1);
+        let destination = allStops[allStops.length - 1];
+
+        let stopName;
+        try {
+          stopName = allStations[formattedStationID]["Stop Name"];
+        } catch (e) {
+          stopName = "";
+        }
+        if(nearbyStations[formattedStationID]){
+          populateNearByStation(stationId, stop, destination, stopName);
         }
       });
     }
   });
-  display();
 };
 
 /* Compare station times */
@@ -182,6 +187,7 @@ const populateNearByStation = (station, stop, destination, stopName) => {
     if (parsedTime < 0){
       return;
     }
+
     /* Template object */
     let currStationObj = {
         stopName: stopName,
@@ -212,24 +218,33 @@ const populateNearByStation = (station, stop, destination, stopName) => {
 
 const display = () => {
 // sort the stations ETA here after you have them all.
-
   let item;
   let parent = document.querySelector('.display');
 
   for(let key in stationsETA){
     let formattedKey = key.split(/[\s-]+/).join("_");
     let train = document.getElementsByClassName(`${formattedKey}`);
+
     // let el = $(`<div class=${key}>${JSON.stringify(obj)}`);
+    // no element created
     if (train.length < 1 ){
        item = document.createElement('div');
-       item.className += ` ${formattedKey}`;
+       item.className += `${formattedKey}`;
        let name = document.createTextNode(key);
        item.appendChild(name);
        parent.append(item);
      }
-    for(let stop in stationsETA[key]){
+    for(let id in stationsETA[key]){
+      let tempStop = document.getElementsByClassName(`${stop}`);
       let stopName = document.createElement("div");
-      let s;
+      stopName.className += "stopName";
+
+        for (let indivTrain in stationsETA[key][id]){
+          let uniqueTrain = stationsETA[key][id][indivTrain];
+          let info = document.createElement("p");
+          let sailer = 1;
+
+        }
     }
 
 
