@@ -33,7 +33,12 @@
   margin-top: 12px;
 }
 
-.trains {
+.station {
+  font-weight: 700;
+  font-family: cursive;
+  color: red;
+}
 
-
+.stopName {
+  color: blue;
 }

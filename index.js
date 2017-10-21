@@ -218,22 +218,29 @@ const populateNearByStation = (station, stop, destination, stopName) => {
 
 const display = () => {
 // sort the stations ETA here after you have them all.
+
   let item;
   let parent = document.querySelector('.display');
+  clearDOM(parent);
 
   for(let key in stationsETA){
     let formattedKey = key.split(/[\s-]+/).join("_");
-    let train = document.getElementsByClassName(`${formattedKey}`);
+    let train = document.getElementsByClassName(`${formattedKey}`)[0];
 
     // let el = $(`<div class=${key}>${JSON.stringify(obj)}`);
     // no element created
-    if (train.length < 1 ){
+    if (train === undefined ){
        item = document.createElement('div');
-       item.className += `${formattedKey}`;
+       item.className += `${formattedKey} station`;
        let name = document.createTextNode(key);
        item.appendChild(name);
        parent.append(item);
+     } else {
+
+
      }
+
+
     for(let id in stationsETA[key]){
       let tempStop = document.getElementsByClassName(`${stop}`);
       let stopName = document.createElement("div");
@@ -242,9 +249,11 @@ const display = () => {
         for (let indivTrain in stationsETA[key][id]){
           let uniqueTrain = stationsETA[key][id][indivTrain];
           let info = document.createElement("p");
-          let sailer = 1;
-
+          let string = `${uniqueTrain.destination} | ${uniqueTrain.arrival}`;
+          info.innerText = string;
+          stopName.append(info);
         }
+        item.append(stopName);
     }
 
 
@@ -261,4 +270,11 @@ const display = () => {
   //       train[1].innerText = JSON.stringify(nearbyStationsETA[key][1]);
   //     }
   //   }
+};
+
+const clearDOM = (parent) => {
+
+  while (parent.firstChild){
+    parent.removeChild(parent.firstChild);
+  }
 };
