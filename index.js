@@ -249,6 +249,7 @@ const display = () => {
         for (let indivTrain in stationsETA[key][id]){
           let uniqueTrain = stationsETA[key][id][indivTrain];
           let info = document.createElement("p");
+          info.className += " stop";
           let string = `${uniqueTrain.destination} | ${uniqueTrain.arrival}`;
           info.innerText = string;
           stopName.append(info);
