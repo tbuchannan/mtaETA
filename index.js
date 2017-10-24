@@ -192,7 +192,8 @@ const populateNearByStation = (station, stop, destination, stopName) => {
     let currStationObj = {
         stopName: stopName,
         destination: stopsObject[destination.stop_id].stop_name,
-        arrival: arrival.toLocaleTimeString(),
+        arrival: arrival,
+        arrivalString: arrival.toLocaleTimeString(),
         station: station
     };
 
@@ -201,8 +202,8 @@ const populateNearByStation = (station, stop, destination, stopName) => {
       first = stationsETA[stopName][station][0];
       second = stationsETA[stopName][station][1];
     } else {
-      first = stationsETA[stopName][station] = [];
-      second = stationsETA[stopName][station] = [];
+      stationsETA[stopName][station] = [];
+      stationsETA[stopName][station] = [];
     }
 
     let currArrival = currStationObj.arrival;
@@ -217,7 +218,8 @@ const populateNearByStation = (station, stop, destination, stopName) => {
 };
 
 const display = () => {
-// sort the stations ETA here after you have them all.
+
+  // sort the stations ETA here after you have them all.
 
   let item;
   let parent = document.querySelector('.display');
@@ -250,7 +252,7 @@ const display = () => {
           let uniqueTrain = stationsETA[key][id][indivTrain];
           let info = document.createElement("p");
           info.className += " stop";
-          let string = `${uniqueTrain.destination} | ${uniqueTrain.arrival}`;
+          let string = `${uniqueTrain.destination} | ${uniqueTrain.arrivalString}`;
           info.innerText = string;
           stopName.append(info);
         }
