@@ -156,27 +156,29 @@ const parseData = (data) => {
     if(train.trip_update){
       let nextStops = train.trip_update.stop_time_update;
       // iterate over all of a trains scheduled stops
-      nextStops.forEach((stop, _ ,allStops) => {
+      for(let i = 0 ; i < nextStops.length; i++){
+        let route = train.trip_update.trip.route_id;
+        let stop = nextStops[i];
         let stationId = stop.stop_id;
         let formattedStationID = stationId.slice(0, -1);
-        let destination = allStops[allStops.length - 1];
-
+        let destination = nextStops[nextStops.length - 1];
         let stopName;
         try {
           stopName = allStations[formattedStationID]["Stop Name"];
         } catch (e) {
           stopName = "";
         }
+
         if(nearbyStations[formattedStationID]){
-          populateNearByStation(stationId, stop, destination, stopName);
+          populateNearByStation(stationId, stop, destination, stopName, route);
         }
-      });
+      }
     }
   });
 };
 
 /* Compare station times */
-const populateNearByStation = (station, stop, destination, stopName) => {
+const populateNearByStation = (station, stop, destination, stopName, route) => {
   if (stop.arrival){
     let now = new Date();
     let arrival = new Date(stop.arrival.time.low * 1000);
@@ -194,7 +196,8 @@ const populateNearByStation = (station, stop, destination, stopName) => {
         destination: stopsObject[destination.stop_id].stop_name,
         arrival: arrival,
         arrivalString: arrival.toLocaleTimeString(),
-        station: station
+        station: station,
+        route: route
     };
 
     /* Check StationsETA Object to see if station key exists */
@@ -252,7 +255,7 @@ const display = () => {
           let uniqueTrain = stationsETA[key][id][indivTrain];
           let info = document.createElement("p");
           info.className += " stop";
-          let string = `${uniqueTrain.destination} | ${uniqueTrain.arrivalString}`;
+          let string = `${uniqueTrain.route} | ${uniqueTrain.destination} | ${uniqueTrain.arrivalString}`;
           info.innerText = string;
           stopName.append(info);
         }
