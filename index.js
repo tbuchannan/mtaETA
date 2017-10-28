@@ -37,6 +37,7 @@ let feedObject = {
 };
 let feedsToCall = {};
 let feedstoCallArr = [];
+let timer;
 
 let stationStrings = {
   1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven" };
@@ -62,6 +63,7 @@ csv()
 
 const start = () => {
   if(doneParsingStops && doneParsingStation){
+    clearTimeout(timer);
     let now = new Date();
     let updateDiv = document.querySelector('.update');
     let updateString ="Updated On: " + now.toLocaleDateString() + " at: "+ now.toLocaleTimeString();
@@ -83,7 +85,7 @@ const start = () => {
       .then((data) => {
       getNearbyStations(data);
     });
-    setTimeout(start, 60000);
+    timer = setTimeout(start, 60000);
   }
 };
 
@@ -144,6 +146,8 @@ const getIncomingTrains = (arr) => {
       let trains = GtfsRealtimeBindings.FeedMessage.decode(items[i]);
       parseTrains(trains);
     }
+  }).catch((error) => {
+    start();
   }).then(()=>{
     display();
   });
