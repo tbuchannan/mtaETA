@@ -11,13 +11,13 @@ const mapDims = 0.006;
 const apiKey = '5478c04ea5da79c1c75aa912a1fb9fd9';
 var Promise = require('es6-promise').Promise;
 
-/* Feed Request Settings */
+// Feed Request Settings
 let requestSettings = {
   method: 'GET',
   encoding: null
 };
 
-/* Train, Trip, Station Objects */
+// Train, Trip, Station Objects
 let allStations = {};
 let stopsObject = {};
 let stationsETA = {};
@@ -38,7 +38,10 @@ let feedObject = {
 let feedsToCall = {};
 let feedstoCallArr = [];
 
-/* Populate Train, Station Objects */
+let stationStrings = {
+  1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven" };
+
+// Populate Train, Station Objects
 csv()
   .fromFile(stationsCSVFilePath)
   .on('json', (obj) => {
@@ -57,7 +60,6 @@ csv()
   start();
 });
 
-
 const start = () => {
   if(doneParsingStops && doneParsingStation){
     let now = new Date();
@@ -65,6 +67,7 @@ const start = () => {
     let updateString ="Updated On: " + now.toLocaleDateString() + " at: "+ now.toLocaleTimeString();
     let child = updateDiv.firstChild;
 
+    // Add Update String, replace if already created
     let header = document.createElement("div");
     header.className += "headerText";
     header.innerText = updateString;
@@ -75,7 +78,6 @@ const start = () => {
       updateDiv.replaceChild(header, child);
     }
 
-
     fetch('http://ip-api.com/json')
       .then((resp) => resp.json())
       .then((data) => {
@@ -85,9 +87,7 @@ const start = () => {
   }
 };
 
-
-
-/* Populate nearbyStations Object */
+// Populate nearbyStations Object
 const getNearbyStations = (data) => {
   // data.lat = 40.703811;
   // data.lon = -73.918425;
@@ -109,7 +109,7 @@ const getNearbyStations = (data) => {
   getRoutes();
 };
 
-/* Populate Feeds Array */
+// Populate Feeds Array
 const getRoutes = () => {
   feedsToCall = {};
   feedstoCallArr = [];
@@ -130,7 +130,7 @@ const getRoutes = () => {
   getIncomingTrains(feedstoCallArr);
 };
 
-/* Populate nearbyStationsETA */
+// Populate nearbyStationsETA
 const getIncomingTrains = (arr) => {
   let promises = [];
   for (let i = 0; i < arr.length; i++){
@@ -138,24 +138,25 @@ const getIncomingTrains = (arr) => {
     promises.push(request(requestSettings));
   }
 
+// Parse data upon receival of all promises
   Promise.all(promises).then((items) =>{
     for(let i = 0; i < items.length; i++){
-      let feed = GtfsRealtimeBindings.FeedMessage.decode(items[i]);
-      parseData(feed);
+      let trains = GtfsRealtimeBindings.FeedMessage.decode(items[i]);
+      parseTrains(trains);
     }
   }).then(()=>{
     display();
   });
 };
 
-/* Call all feeds */
-const parseData = (data) => {
-  // iterate over all of the trains
-  data.entity.forEach((train) => {
-    // if it has scheduled stops
+const parseTrains = (trains) => {
+  trains.entity.forEach((train) => {
+
+    // If train has scheduled stops
     if(train.trip_update){
       let nextStops = train.trip_update.stop_time_update;
-      // iterate over all of a trains scheduled stops
+
+      // Iterate over all of a trains scheduled stops
       for(let i = 0 ; i < nextStops.length; i++){
         let route = train.trip_update.trip.route_id;
         let stop = nextStops[i];
@@ -163,12 +164,17 @@ const parseData = (data) => {
         let formattedStationID = stationId.slice(0, -1);
         let destination = nextStops[nextStops.length - 1];
         let stopName;
+
+      /* Some stops on MTA CSV serve multiple line but but do not
+       * have distinctive names
+       */
         try {
           stopName = allStations[formattedStationID]["Stop Name"];
         } catch (e) {
           stopName = "";
         }
 
+        // Populate stationsETA object if train is scheduled to stop at a nearby stations
         if(nearbyStations[formattedStationID]){
           populateNearByStation(stationId, stop, destination, stopName, route);
         }
@@ -177,7 +183,7 @@ const parseData = (data) => {
   });
 };
 
-/* Compare station times */
+// Compare station times
 const populateNearByStation = (station, stop, destination, stopName, route) => {
   if (stop.arrival){
     let now = new Date();
@@ -190,7 +196,7 @@ const populateNearByStation = (station, stop, destination, stopName, route) => {
       return;
     }
 
-    /* Template object */
+    // Template object
     let currStationObj = {
         stopName: stopName,
         destination: stopsObject[destination.stop_id].stop_name,
@@ -200,7 +206,7 @@ const populateNearByStation = (station, stop, destination, stopName, route) => {
         route: route
     };
 
-    /* Check StationsETA Object to see if station key exists */
+    // Check StationsETA Object to see if station key exists
     if (stationsETA[stopName][station]){
       first = stationsETA[stopName][station][0];
       second = stationsETA[stopName][station][1];
@@ -220,16 +226,15 @@ const populateNearByStation = (station, stop, destination, stopName, route) => {
 };
 
 const display = () => {
-  // sort the stations ETA here after you have them all.
   let item;
   let parent = document.querySelector('.display');
   clearDOM(parent);
 
   for(let key in stationsETA){
-    let formattedKey = key.split(/[\s-]+/).join("_");
+    let formattedKey = key.split(/[\s-]+/).join("_").toLowerCase();
     let train = document.getElementsByClassName(`${formattedKey}`)[0];
 
-    /* If element hasn't been created */
+    // If element hasn't been created
     if (train === undefined ){
        item = document.createElement('div');
        item.className += `${formattedKey} station`;
@@ -241,51 +246,52 @@ const display = () => {
 
     for(let id in stationsETA[key]){
       let directionDiv = document.createElement("div");
-      directionDiv.className += id.includes("S") ? "Downtown" : "Uptown";
+      directionDiv.className += id.includes("S") ? "downtown" : "uptown";
 
-      /*In the event of an Uptown/Downtown div already created, then append to that */
+      // In the event of an Uptown/Downtown div already created, then append to that
       for(let i = 0; i < item.children.length; i++){
         let child = item.children[i];
-        if (child.className === "Downtown" && id.includes("S") ||
-            (child.className === "Uptown" && id.includes("N"))){
+        if (child.className === "downtown" && id.includes("S") ||
+            (child.className === "uptown" && id.includes("N"))){
               directionDiv = child;
             }
         }
 
-      /* Only add the 'Uptown' and 'Downtown labels once'*/
+      // Only add the 'Uptown' and 'Downtown labels once'
       if (item.children.length <= 1){
         let label = document.createTextNode(directionDiv.className);
         directionDiv.appendChild(label);
       }
 
       /* Iterate over each train within the stationsETA[key][id] object, create
-         element  and append */
-
+       * train string element and route div element and append to uptown/Downtown div
+       */
         for (let indivTrain in stationsETA[key][id]){
           let uniqueTrain = stationsETA[key][id][indivTrain];
+          let trainContainer = document.createElement("div");
+          let routeDiv = document.createElement("div");
           let info = document.createElement("p");
+          let routeDivText = document.createTextNode(`${uniqueTrain.route}`);
+          routeDiv.append(routeDivText);
+          trainContainer.className += "trainContainer";
+
+          // Prevent classNames being numbers or capital letters
+          if(stationStrings[uniqueTrain.route]){
+            uniqueTrain.route = stationStrings[uniqueTrain.route];
+          } else{
+            uniqueTrain.route = uniqueTrain.route.toLowerCase();
+          }
+
+          routeDiv.className += `${uniqueTrain.route} route`;
           info.className += " stop";
-          let string = `${uniqueTrain.route} | ${uniqueTrain.destination} | ${uniqueTrain.arrivalString}`;
+          let string = `${uniqueTrain.destination} | ${uniqueTrain.arrivalString}`;
           info.innerText = string;
-          directionDiv.append(info);
+          trainContainer.append(routeDiv, info);
+          directionDiv.append(trainContainer);
         }
         item.append(directionDiv);
     }
-
-
   }
-  // for(let key in nearbyStationsETA){
-  //   if (train.length < 1 && nearbyStationsETA[key].length > 0){
-  //     for(let i = 0; i < nearbyStationsETA[key].length; i++) {
-  //       let el = $(`<div class=${key}>${JSON.stringify(nearbyStationsETA[key][i])}</div>`);
-  //       el.addClass('trains');
-  //       stuff.append(el).hide().fadeIn();
-  //     }
-  //   } else if (nearbyStationsETA[key][0] !== undefined && nearbyStationsETA[key][1] !== undefined){
-  //       train[0].innerText = JSON.stringify(nearbyStationsETA[key][0]);
-  //       train[1].innerText = JSON.stringify(nearbyStationsETA[key][1]);
-  //     }
-  //   }
 };
 
 const clearDOM = (parent) => {
