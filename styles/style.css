@@ -36,9 +36,61 @@
 .station {
   font-weight: 700;
   font-family: cursive;
-  color: red;
+  border: 1px solid red;
 }
 
-.stopName {
-  color: blue;
+.trainContainer {
+  display: flex;
+  border: 1px solid yellow;
+}
+
+.route {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 50px;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  font-family: Arial;
+
+}
+
+.one, .two, .three{
+  background: #EB262F;
+}
+
+.q, .r, .w, .n {
+  background: #FBD82A;
+  color: black;
+}
+
+.a, .c, .e {
+  background: #294BAD;
+}
+
+.b, .d, .f, .m {
+  background: #F35E1C;
+}
+
+.four, .five, .six {
+  background: #18963C;
+}
+
+.g {
+  background: #70C245;
+}
+
+.j, .z {
+  background: #A5794D;
+}
+
+.l {
+  background: #A7A9AC;
+}
+
+.s {
+  background: #808183;
 }
