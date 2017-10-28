@@ -206,7 +206,6 @@ const populateNearByStation = (station, stop, destination, stopName, route) => {
       second = stationsETA[stopName][station][1];
     } else {
       stationsETA[stopName][station] = [];
-      stationsETA[stopName][station] = [];
     }
 
     let currArrival = currStationObj.arrival;
@@ -221,9 +220,7 @@ const populateNearByStation = (station, stop, destination, stopName, route) => {
 };
 
 const display = () => {
-
   // sort the stations ETA here after you have them all.
-
   let item;
   let parent = document.querySelector('.display');
   clearDOM(parent);
@@ -232,24 +229,37 @@ const display = () => {
     let formattedKey = key.split(/[\s-]+/).join("_");
     let train = document.getElementsByClassName(`${formattedKey}`)[0];
 
-    // let el = $(`<div class=${key}>${JSON.stringify(obj)}`);
-    // no element created
+    /* If element hasn't been created */
     if (train === undefined ){
        item = document.createElement('div');
        item.className += `${formattedKey} station`;
        let name = document.createTextNode(key);
        item.appendChild(name);
        parent.append(item);
-     } else {
-
-
      }
 
 
     for(let id in stationsETA[key]){
-      let tempStop = document.getElementsByClassName(`${stop}`);
-      let stopName = document.createElement("div");
-      stopName.className += "stopName";
+      let directionDiv = document.createElement("div");
+      directionDiv.className += id.includes("S") ? "Downtown" : "Uptown";
+
+      /*In the event of an Uptown/Downtown div already created, then append to that */
+      for(let i = 0; i < item.children.length; i++){
+        let child = item.children[i];
+        if (child.className === "Downtown" && id.includes("S") ||
+            (child.className === "Uptown" && id.includes("N"))){
+              directionDiv = child;
+            }
+        }
+
+      /* Only add the 'Uptown' and 'Downtown labels once'*/
+      if (item.children.length <= 1){
+        let label = document.createTextNode(directionDiv.className);
+        directionDiv.appendChild(label);
+      }
+
+      /* Iterate over each train within the stationsETA[key][id] object, create
+         element  and append */
 
         for (let indivTrain in stationsETA[key][id]){
           let uniqueTrain = stationsETA[key][id][indivTrain];
@@ -257,9 +267,9 @@ const display = () => {
           info.className += " stop";
           let string = `${uniqueTrain.route} | ${uniqueTrain.destination} | ${uniqueTrain.arrivalString}`;
           info.innerText = string;
-          stopName.append(info);
+          directionDiv.append(info);
         }
-        item.append(stopName);
+        item.append(directionDiv);
     }
 
 
