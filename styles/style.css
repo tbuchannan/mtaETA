@@ -16,7 +16,6 @@
 .header {
   font-family: 'Monoton', cursive;
   display: inline;
-
 }
 
 .headerText {
@@ -36,12 +35,10 @@
 .station {
   font-weight: 700;
   font-family: cursive;
-  border: 1px solid red;
 }
 
 .trainContainer {
   display: flex;
-  border: 1px solid yellow;
 }
 
 .route {
