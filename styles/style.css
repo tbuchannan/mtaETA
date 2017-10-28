@@ -13,6 +13,11 @@
   user-select: none;
 }
 
+.display {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
 .header {
   font-family: 'Monoton', cursive;
   display: inline;
@@ -35,15 +40,18 @@
 .station {
   font-weight: 700;
   font-family: cursive;
+  margin: 20px;
 }
 
 .trainContainer {
   display: flex;
+  width: 100%;
+  margin: 5px;
 }
 
 .route {
-  width: 50px;
-  height: 50px;
+  max-height: 50px;
+  min-width: 50px;
   border-radius: 50%;
   text-align: center;
   vertical-align: middle;
@@ -52,11 +60,23 @@
   font-weight: 700;
   color: white;
   font-family: Arial;
+  margin: 5px;
+}
 
+.stop{
+  line-height: 25px;
 }
 
 .one, .two, .three{
   background: #EB262F;
+}
+
+.four, .five, .six {
+  background: #18963C;
+}
+
+.seven {
+  background: #B71BAD;
 }
 
 .q, .r, .w, .n {
@@ -70,10 +90,6 @@
 
 .b, .d, .f, .m {
   background: #F35E1C;
-}
-
-.four, .five, .six {
-  background: #18963C;
 }
 
 .g {
