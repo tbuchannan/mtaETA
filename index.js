@@ -235,6 +235,7 @@ const populateNearByStation = (station, stop, destination, stopName, route) => {
 const display = () => {
   let item;
   let parent = document.querySelector('.display');
+  let loader = document.querySelector('.loader');
   clearDOM(parent);
 
   for(let key in stationsETA){
@@ -308,7 +309,7 @@ const display = () => {
         item.append(directionDiv);
     }
   }
-
+  loader.classList.toggle("hidden");
   parent.classList.toggle("fade");
 };
 
