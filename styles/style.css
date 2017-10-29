@@ -13,6 +13,14 @@
   user-select: none;
 }
 
+.update {
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+  font-family: Arial;
+  font-weight: 400;
+}
+
 .display {
   display: flex;
   justify-content: space-around;
@@ -21,8 +29,9 @@
   background: #1C2541;
 }
 .header {
-  font-family: 'Monoton', cursive;
   display: inline;
+  font-family: Arial;
+  font-weight: 400;
 }
 
 .headerText {
