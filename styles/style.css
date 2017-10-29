@@ -9,7 +9,7 @@
 
  body {
   -webkit-app-region: drag;
-  animation: fadein 0.3s;
+
   user-select: none;
 }
 
@@ -17,6 +17,8 @@
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
+  animation: fadein 0.3s;
+  background: #1C2541;
 }
 .header {
   font-family: 'Monoton', cursive;
@@ -39,14 +41,37 @@
 
 .station {
   font-weight: 700;
+  width: 45%;
   font-family: cursive;
-  margin: 20px;
+  margin: 10px;
+  background: #3A506B;
+  box-shadow: 3px 3px 3px #0B132B;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.stationHeader {
+  display: flex;
+  justify-content: center;
 }
 
 .trainContainer {
   display: flex;
   width: 100%;
   margin: 5px;
+}
+
+.uptown, .downtown {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+.direction {
+  display: flex;
+  justify-content: center;
 }
 
 .route {
@@ -63,8 +88,12 @@
   margin: 5px;
 }
 
+
+
+/* STATION BUTTONS */
 .stop{
   line-height: 25px;
+  color: white;
 }
 
 .one, .two, .three{
