@@ -74,7 +74,7 @@ const start = () => {
 
     // Add Update String, replace if already created
     let header = document.createElement("div");
-    header.className += "headerText";
+    header.classList.add("headerText");
     header.innerText = updateString;
 
     if (!child) {
@@ -244,25 +244,27 @@ const display = () => {
     // If element hasn't been created
     if (train === undefined ){
        item = document.createElement('div');
-       item.className += `${formattedKey} station`;
+       item.classList.add("station", `${formattedKey}`);
+
        let stationHeader = document.createElement("div");
-       stationHeader.className = "stationHeader";
+       stationHeader.classList.add("stationHeader");
        let stationHeaderText = document.createTextNode(key);
+
        stationHeader.append(stationHeaderText);
        item.appendChild(stationHeader);
        parent.append(item);
      }
 
-
     for(let id in stationsETA[key]){
       let directionDiv = document.createElement("div");
-      directionDiv.className += id.includes("S") ? "downtown" : "uptown";
+      let directionClass = id.includes("S") ? "downtown" : "uptown";
+      directionDiv.classList.add(directionClass);
 
       // In the event of an Uptown/Downtown div already created, then append to that
       for(let i = 0; i < item.children.length; i++){
         let child = item.children[i];
-        if (child.className === "downtown" && id.includes("S") ||
-            (child.className === "uptown" && id.includes("N"))){
+        if (child.classList.contains("downtown") && id.includes("S") ||
+            (child.classList.contains("uptown") && id.includes("N"))){
               directionDiv = child;
             }
         }
@@ -271,7 +273,7 @@ const display = () => {
       if (item.children.length <= 2){
         let divClass = directionDiv.className;
         let labelContainer = document.createElement("div");
-        labelContainer.className = "direction";
+        labelContainer.classList.add("direction");
         let label = document.createTextNode(divClass.charAt(0).toUpperCase() + divClass.slice(1));
         labelContainer.appendChild(label);
         directionDiv.appendChild(labelContainer);
@@ -287,7 +289,7 @@ const display = () => {
           let info = document.createElement("p");
           let routeDivText = document.createTextNode(`${uniqueTrain.route}`);
           routeDiv.append(routeDivText);
-          trainContainer.className += "trainContainer";
+          trainContainer.classList.add("trainContainer");
 
           // Prevent classNames being numbers or capital letters
           if(stationStrings[uniqueTrain.route]){
@@ -296,8 +298,8 @@ const display = () => {
             uniqueTrain.route = uniqueTrain.route.toLowerCase();
           }
 
-          routeDiv.className += `${uniqueTrain.route} route`;
-          info.className += " stop";
+          routeDiv.classList.add("route", `${uniqueTrain.route}`);
+          info.classList.add("stop");
           let string = `${uniqueTrain.destination} | ${uniqueTrain.arrivalString}`;
           info.innerText = string;
           trainContainer.append(routeDiv, info);
@@ -306,6 +308,8 @@ const display = () => {
         item.append(directionDiv);
     }
   }
+
+  parent.classList.toggle("fade");
 };
 
 const clearDOM = (parent) => {
