@@ -9,7 +9,7 @@
 
  body {
   -webkit-app-region: drag;
-
+  background: #DAF0EE;
   user-select: none;
 }
 
@@ -25,13 +25,20 @@
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
-  animation: fadein 0.3s;
   background: #1C2541;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
+
+.fade {
+  animation: fadein .5s;
+}
+
 .header {
   display: inline;
   font-family: Arial;
   font-weight: 400;
+  margin-left: 10px;
 }
 
 .headerText {
@@ -41,6 +48,11 @@
 
 .title_bar {
   display: flex;
+  color: white;
+  background: #1C2541;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+
 }
 
 .fa, .fa-subway {
@@ -53,6 +65,7 @@
   width: 45%;
   font-family: cursive;
   margin: 10px;
+  padding-top: 10px;
   background: #3A506B;
   box-shadow: 3px 3px 3px #0B132B;
   border-radius: 10px;
