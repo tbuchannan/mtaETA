@@ -5,9 +5,9 @@ let win;
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 900,
+    width: 975,
     height: 800,
-    backgroundColor: '#DAF0EE'
+    resizable: false
   });
 
   win.loadURL(url.format({
@@ -16,7 +16,7 @@ function createWindow() {
     slashes: true
   }));
 
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 
   win.on('closed', () => {
     win = null;
