@@ -5,9 +5,9 @@ let win;
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 1200,
+    width: 900,
     height: 800,
-    backgroundColor: '#FFFAFA'
+    backgroundColor: '#DAF0EE'
   });
 
   win.loadURL(url.format({
