@@ -54,6 +54,9 @@
 .stationHeader {
   display: flex;
   justify-content: center;
+  color: white;
+  font-family: Arial;
+  font-weight: 400;
 }
 
 .trainContainer {
@@ -67,6 +70,9 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
+  color: white;
+  font-family: Arial;
+  font-weight: 400;
 }
 
 .direction {
@@ -93,7 +99,10 @@
 /* STATION BUTTONS */
 .stop{
   line-height: 25px;
+  font-family: Arial;
+  font-weight: 400;
   color: white;
+  margin-left: 10px;
 }
 
 .one, .two, .three{
