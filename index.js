@@ -10,6 +10,7 @@ const southBound = "S";
 const mapDims = 0.006;
 const apiKey = '5478c04ea5da79c1c75aa912a1fb9fd9';
 var Promise = require('es6-promise').Promise;
+let calls = 0;
 
 // Feed Request Settings
 let requestSettings = {
@@ -63,6 +64,8 @@ csv()
 
 const start = () => {
   if(doneParsingStops && doneParsingStation){
+    console.log(calls);
+    calls+=1;
     clearTimeout(timer);
     let now = new Date();
     let updateDiv = document.querySelector('.update');
@@ -242,8 +245,11 @@ const display = () => {
     if (train === undefined ){
        item = document.createElement('div');
        item.className += `${formattedKey} station`;
-       let name = document.createTextNode(key);
-       item.appendChild(name);
+       let stationHeader = document.createElement("div");
+       stationHeader.className = "stationHeader";
+       let stationHeaderText = document.createTextNode(key);
+       stationHeader.append(stationHeaderText);
+       item.appendChild(stationHeader);
        parent.append(item);
      }
 
@@ -261,10 +267,14 @@ const display = () => {
             }
         }
 
-      // Only add the 'Uptown' and 'Downtown labels once'
-      if (item.children.length <= 1){
-        let label = document.createTextNode(directionDiv.className);
-        directionDiv.appendChild(label);
+      // Only add the 'Uptown' and 'Downtown' labels once
+      if (item.children.length <= 2){
+        let divClass = directionDiv.className;
+        let labelContainer = document.createElement("div");
+        labelContainer.className = "direction";
+        let label = document.createTextNode(divClass.charAt(0).toUpperCase() + divClass.slice(1));
+        labelContainer.appendChild(label);
+        directionDiv.appendChild(labelContainer);
       }
 
       /* Iterate over each train within the stationsETA[key][id] object, create
