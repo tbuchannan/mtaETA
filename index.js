@@ -10,7 +10,6 @@ const southBound = "S";
 const mapDims = 0.006;
 const apiKey = '5478c04ea5da79c1c75aa912a1fb9fd9';
 var Promise = require('es6-promise').Promise;
-let calls = 0;
 
 // Feed Request Settings
 let requestSettings = {
@@ -64,8 +63,6 @@ csv()
 
 const start = () => {
   if(doneParsingStops && doneParsingStation){
-    console.log(calls);
-    calls+=1;
     clearTimeout(timer);
     let now = new Date();
     let updateDiv = document.querySelector('.update');
@@ -309,6 +306,7 @@ const display = () => {
         item.append(directionDiv);
     }
   }
+  
   loader.classList.add("hidden");
   parent.classList.add("fade");
 };
