@@ -309,8 +309,8 @@ const display = () => {
         item.append(directionDiv);
     }
   }
-  loader.classList.toggle("hidden");
-  parent.classList.toggle("fade");
+  loader.classList.add("hidden");
+  parent.classList.add("fade");
 };
 
 const clearDOM = (parent) => {
