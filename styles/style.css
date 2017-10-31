@@ -16,6 +16,7 @@
   -webkit-app-region: drag;
   background: #DAF0EE;
   user-select: none;
+  margin: 5px;
 }
 
 .update {
@@ -52,17 +53,19 @@
 }
 
 .title_bar {
-  display: flex;
   color: white;
   background: #1C2541;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  position: sticky;
+  top: 0;
 
 }
 
 .fa, .fa-subway {
   font-size: 30px;
   margin-top: 19px;
+  box-shadow: 3px 3px 3px #0B132B;
 }
 
 .station {
@@ -119,6 +122,7 @@
   color: white;
   font-family: Arial;
   margin: 5px;
+  box-shadow: 3px 3px 3px #0B132B;
 }
 
 .loader {
