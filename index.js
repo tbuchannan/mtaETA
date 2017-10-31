@@ -1,4 +1,3 @@
-const button = document.getElementById('locate_button');
 const GtfsRealtimeBindings = require('gtfs-realtime-bindings');
 const csv = require('csvtojson');
 const request = require('request-promise');
@@ -10,7 +9,6 @@ const southBound = "S";
 const mapDims = 0.006;
 const apiKey = '5478c04ea5da79c1c75aa912a1fb9fd9';
 var Promise = require('es6-promise').Promise;
-
 // Feed Request Settings
 let requestSettings = {
   method: 'GET',
@@ -79,6 +77,7 @@ const start = () => {
     } else{
       updateDiv.replaceChild(header, child);
     }
+    updateDiv.classList.add("fade");
 
     fetch('http://ip-api.com/json')
       .then((resp) => resp.json())
@@ -143,11 +142,19 @@ const getIncomingTrains = (arr) => {
 // Parse data upon receival of all promises
   Promise.all(promises).then((items) =>{
     for(let i = 0; i < items.length; i++){
-      let trains = GtfsRealtimeBindings.FeedMessage.decode(items[i]);
-      parseTrains(trains);
+      try {
+        let trains = GtfsRealtimeBindings.FeedMessage.decode(items[i]);
+        parseTrains(trains);
+      } catch (e){
+        console.log("Unable to process all requests");
+      }
     }
   }).catch((error) => {
-    start();
+    let loader = document.querySelector('.loader');
+    loader.classList.remove("hidden");
+    clearTimeout(timer);
+    timer = setTimeout(start, 5000);
+    clearDOM();
   }).then(()=>{
     display();
   });
@@ -306,7 +313,7 @@ const display = () => {
         item.append(directionDiv);
     }
   }
-  
+
   loader.classList.add("hidden");
   parent.classList.add("fade");
 };
