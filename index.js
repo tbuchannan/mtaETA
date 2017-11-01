@@ -14,16 +14,16 @@ let requestSettings = {
   method: 'GET',
   encoding: null
 };
+let timer;
 
-// Train, Trip, Station Objects
+// Train, Station Objects
 let allStations = {};
 let stopsObject = {};
 let stationsETA = {};
-let doneParsingStation = false;
-let doneParsingStops = false;
-
 let nearbyStations = {};
 let nearbyStationsETA = {};
+let doneParsingStation = false;
+let doneParsingStops = false;
 
 let feedObject = {
   1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1,
@@ -35,7 +35,6 @@ let feedObject = {
 };
 let feedsToCall = {};
 let feedstoCallArr = [];
-let timer;
 
 let stationStrings = {
   1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven" };
@@ -45,22 +44,22 @@ csv()
   .fromFile(stationsCSVFilePath)
   .on('json', (obj) => {
   allStations[obj["GTFS Stop ID"]] = obj;
-}).on('done', (e) =>{
+}).on('done', (e) => {
   doneParsingStation = true;
   start();
 });
 
 csv()
   .fromFile(stopsCSVFilePath)
-  .on('json', (obj) =>{
+  .on('json', (obj) => {
   stopsObject[obj["stop_id"]] = obj;
-}).on('done', (e) =>{
+}).on('done', (e) => {
   doneParsingStops = true;
   start();
 });
 
 const start = () => {
-  if(doneParsingStops && doneParsingStation){
+  if (doneParsingStops && doneParsingStation) {
     clearTimeout(timer);
     let now = new Date();
     let updateDiv = document.querySelector('.update');
@@ -90,9 +89,8 @@ const start = () => {
 
 // Populate nearbyStations Object
 const getNearbyStations = (data) => {
-  // data.lat = 40.703811;
-  // data.lon = -73.918425;
-  for(let id in allStations){
+  for (let id in allStations) {
+    if (allStations.hasOwnProperty(id)) {
       let stationLat = parseFloat(allStations[id]["GTFS Latitude"]);
       let stationLong = parseFloat(allStations[id]["GTFS Longitude"]);
       if ((Math.abs(stationLat - data.lat) <= mapDims) && (Math.abs(stationLong - data.lon) <= mapDims))  {
@@ -105,6 +103,7 @@ const getNearbyStations = (data) => {
 
         nearbyStationsETA[northID] = [];
         nearbyStationsETA[southID] = [];
+      }
     }
   }
   getRoutes();
@@ -116,14 +115,16 @@ const getRoutes = () => {
   feedstoCallArr = [];
   let feedStr = "";
   for (let key in nearbyStations) {
-    feedStr += nearbyStations[key]["Daytime Routes"] + " ";
+    if (nearbyStations.hasOwnProperty(key)) {
+      feedStr += nearbyStations[key]["Daytime Routes"] + " ";
+    }
   }
 
-  for (let i = 0;  i < feedStr.length; i += 2) {
+  for (let i = 0, l = feedStr.length; i < l; i += 2) {
     let routeLetter = feedStr[i];
     let feedId = feedObject[routeLetter];
 
-    if (feedsToCall[feedId] === undefined && feedId !== '7'){
+    if (feedsToCall[feedId] === undefined && feedId !== '7') {
       feedsToCall[feedId] = true;
       feedstoCallArr.push(feedId);
     }
@@ -134,18 +135,18 @@ const getRoutes = () => {
 // Populate nearbyStationsETA
 const getIncomingTrains = (arr) => {
   let promises = [];
-  for (let i = 0; i < arr.length; i++){
+  for (let i = 0, l = arr.length; i < l; i++) {
     requestSettings['url'] = `http://datamine.mta.info/mta_esi.php?key=${apiKey}&feed_id=${arr[i]}`;
     promises.push(request(requestSettings));
   }
 
-// Parse data upon receival of all promises
-  Promise.all(promises).then((items) =>{
-    for(let i = 0; i < items.length; i++){
+  // Parse data upon receival of all promises
+  Promise.all(promises).then((items) => {
+    for (let i = 0, l = items.length; i < l; i++) {
       try {
         let trains = GtfsRealtimeBindings.FeedMessage.decode(items[i]);
         parseTrains(trains);
-      } catch (e){
+      } catch (e) {
         console.log("Unable to process all requests");
       }
     }
@@ -155,7 +156,7 @@ const getIncomingTrains = (arr) => {
     clearTimeout(timer);
     timer = setTimeout(start, 5000);
     clearDOM();
-  }).then(()=>{
+  }).then(() => {
     display();
   });
 };
@@ -164,11 +165,11 @@ const parseTrains = (trains) => {
   trains.entity.forEach((train) => {
 
     // If train has scheduled stops
-    if(train.trip_update){
+    if (train.trip_update) {
       let nextStops = train.trip_update.stop_time_update;
 
       // Iterate over all of a trains scheduled stops
-      for(let i = 0 ; i < nextStops.length; i++){
+      for (let i = 0, l = nextStops.length; i < l; i++) {
         let route = train.trip_update.trip.route_id;
         let stop = nextStops[i];
         let stationId = stop.stop_id;
@@ -176,9 +177,7 @@ const parseTrains = (trains) => {
         let destination = nextStops[nextStops.length - 1];
         let stopName;
 
-      /* Some stops on MTA CSV serve multiple line but but do not
-       * have distinctive names
-       */
+        // Some stops on MTA CSV serve multiple line but but do not have distinctive names
         try {
           stopName = allStations[formattedStationID]["Stop Name"];
         } catch (e) {
@@ -186,7 +185,7 @@ const parseTrains = (trains) => {
         }
 
         // Populate stationsETA object if train is scheduled to stop at a nearby stations
-        if(nearbyStations[formattedStationID]){
+        if (nearbyStations[formattedStationID]) {
           populateNearByStation(stationId, stop, destination, stopName, route);
         }
       }
@@ -196,29 +195,30 @@ const parseTrains = (trains) => {
 
 // Compare station times
 const populateNearByStation = (station, stop, destination, stopName, route) => {
-  if (stop.arrival){
+  if (stop.arrival) {
     let now = new Date();
     let arrival = new Date(stop.arrival.time.low * 1000);
     let timeInSeconds = (arrival - now) / 1000;
-    let parsedTime = Number((timeInSeconds/60).toFixed(2));
-    let first;
-    let second;
-    if (parsedTime < 0){
+    let timeinMinutes = Math.floor(Number((timeInSeconds/60).toFixed(2)));
+    if (timeinMinutes < 0) {
       return;
     }
+    let first;
+    let second;
 
     // Template object
     let currStationObj = {
         stopName: stopName,
         destination: stopsObject[destination.stop_id].stop_name,
         arrival: arrival,
-        arrivalString: arrival.toLocaleTimeString(),
+        arrivalString: arrival.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'} ),
+        etaInMinutes: timeinMinutes,
         station: station,
         route: route
     };
 
     // Check StationsETA Object to see if station key exists
-    if (stationsETA[stopName][station]){
+    if (stationsETA[stopName][station]) {
       first = stationsETA[stopName][station][0];
       second = stationsETA[stopName][station][1];
     } else {
@@ -227,7 +227,7 @@ const populateNearByStation = (station, stop, destination, stopName, route) => {
 
     let currArrival = currStationObj.arrival;
 
-    if (first === undefined || currArrival < first.arrival ){
+    if (first === undefined || currArrival < first.arrival ) {
       stationsETA[stopName][station][1] = first;
       stationsETA[stopName][station][0] = currStationObj;
     } else if (second === undefined || currArrival < second.arrival) {
@@ -242,85 +242,88 @@ const display = () => {
   let loader = document.querySelector('.loader');
   clearDOM(parent);
 
-  for(let key in stationsETA){
-    let formattedKey = key.split(/[\s-]+/).join("_").toLowerCase();
-    let train = document.getElementsByClassName(`${formattedKey}`)[0];
+  for (let station in stationsETA) {
+    if (stationsETA.hasOwnProperty(station)) {
+      let formattedStation = station.split(/[\s-]+/).join("_").toLowerCase();
+      let train = document.getElementsByClassName(`${formattedStation}`)[0];
 
-    // If element hasn't been created
-    if (train === undefined ){
-       item = document.createElement('div');
-       item.classList.add("station", `${formattedKey}`);
+      // If element hasn't been created
+      if (train === undefined ) {
+        item = document.createElement('div');
+        item.classList.add("station", `${formattedStation}`);
 
-       let stationHeader = document.createElement("div");
-       stationHeader.classList.add("stationHeader");
-       let stationHeaderText = document.createTextNode(key);
+        let stationHeader = document.createElement("div");
+        stationHeader.classList.add("stationHeader");
+        let stationHeaderText = document.createTextNode(station);
 
-       stationHeader.append(stationHeaderText);
-       item.appendChild(stationHeader);
-       parent.append(item);
-     }
-
-    for(let id in stationsETA[key]){
-      let directionDiv = document.createElement("div");
-      let directionClass = id.includes("S") ? "downtown" : "uptown";
-      directionDiv.classList.add(directionClass);
-
-      // In the event of an Uptown/Downtown div already created, then append to that
-      for(let i = 0; i < item.children.length; i++){
-        let child = item.children[i];
-        if (child.classList.contains("downtown") && id.includes("S") ||
-            (child.classList.contains("uptown") && id.includes("N"))){
-              directionDiv = child;
-            }
-        }
-
-      // Only add the 'Uptown' and 'Downtown' labels once
-      if (item.children.length <= 2){
-        let divClass = directionDiv.className;
-        let labelContainer = document.createElement("div");
-        labelContainer.classList.add("direction");
-        let label = document.createTextNode(divClass.charAt(0).toUpperCase() + divClass.slice(1));
-        labelContainer.appendChild(label);
-        directionDiv.appendChild(labelContainer);
+        stationHeader.append(stationHeaderText);
+        item.appendChild(stationHeader);
+        parent.append(item);
       }
 
-      /* Iterate over each train within the stationsETA[key][id] object, create
-       * train string element and route div element and append to uptown/Downtown div
-       */
-        for (let indivTrain in stationsETA[key][id]){
-          let uniqueTrain = stationsETA[key][id][indivTrain];
-          let trainContainer = document.createElement("div");
-          let routeDiv = document.createElement("div");
-          let info = document.createElement("p");
-          let routeDivText = document.createTextNode(`${uniqueTrain.route}`);
-          routeDiv.append(routeDivText);
-          trainContainer.classList.add("trainContainer");
+      for (let stop in stationsETA[station]) {
+        if (stationsETA[station].hasOwnProperty(stop)) {
+          let directionDiv = document.createElement("div");
+          let directionClass = stop.includes("S") ? "downtown" : "uptown";
+          directionDiv.classList.add(directionClass);
 
-          // Prevent classNames being numbers or capital letters
-          if(stationStrings[uniqueTrain.route]){
-            uniqueTrain.route = stationStrings[uniqueTrain.route];
-          } else{
-            uniqueTrain.route = uniqueTrain.route.toLowerCase();
+          // In the event of an Uptown/Downtown div already created, then append to that
+          for (let i = 0, l = item.children.length; i < l; i++) {
+            let child = item.children[i];
+            if (child.classList.contains("downtown") && stop.includes("S") ||
+            (child.classList.contains("uptown") && stop.includes("N"))) {
+              directionDiv = child;
+            }
           }
 
-          routeDiv.classList.add("route", `${uniqueTrain.route}`);
-          info.classList.add("stop");
-          let string = `${uniqueTrain.destination} | ${uniqueTrain.arrivalString}`;
-          info.innerText = string;
-          trainContainer.append(routeDiv, info);
-          directionDiv.append(trainContainer);
+          // Only add the 'Uptown' and 'Downtown' labels once
+          if (item.children.length <= 2) {
+            let divClass = directionDiv.className;
+            let labelContainer = document.createElement("div");
+            labelContainer.classList.add("direction");
+            let label = document.createTextNode(divClass.charAt(0).toUpperCase() + divClass.slice(1));
+            labelContainer.appendChild(label);
+            directionDiv.appendChild(labelContainer);
+          }
+
+          /* Iterate over each train within the stationsETA[station][stop] array, create
+          * train string element and route div element and append to uptown/Downtown div
+          */
+          let trainArray = stationsETA[station][stop];
+          for (let i = 0, l = trainArray.length; i < l; i++) {
+            let uniqueTrain = trainArray[i];
+            let trainContainer = document.createElement("div");
+            let routeDiv = document.createElement("div");
+            let info = document.createElement("p");
+            let routeDivText = document.createTextNode(`${uniqueTrain.route}`);
+            routeDiv.append(routeDivText);
+            trainContainer.classList.add("trainContainer");
+
+            // Prevent classNames being numbers or capital letters
+            if (stationStrings[uniqueTrain.route]) {
+              uniqueTrain.route = stationStrings[uniqueTrain.route];
+            } else{
+              uniqueTrain.route = uniqueTrain.route.toLowerCase();
+            }
+
+            routeDiv.classList.add("route", `${uniqueTrain.route}`);
+            info.classList.add("stop");
+            let string = `${uniqueTrain.destination} | ${uniqueTrain.etaInMinutes} minutes`;
+            info.innerText = string;
+            trainContainer.append(routeDiv, info);
+            directionDiv.append(trainContainer);
+          }
+          item.append(directionDiv);
         }
-        item.append(directionDiv);
+      }
     }
   }
-
   loader.classList.add("hidden");
   parent.classList.add("fade");
 };
 
 const clearDOM = (parent) => {
-
-  while (parent.firstChild){
+  while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
   }
 };
