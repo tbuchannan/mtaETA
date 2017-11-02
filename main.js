@@ -7,7 +7,7 @@ function createWindow() {
   win = new BrowserWindow({
     width: 975,
     height: 800,
-    // resizable: false,
+    resizable: false,
     backgroundColor: '#DAF0EE'
   });
 
@@ -17,8 +17,7 @@ function createWindow() {
     slashes: true
   }));
 
-  win.webContents.openDevTools();
-
+  // win.webContents.openDevTools();
   win.on('closed', () => {
     win = null;
   });
