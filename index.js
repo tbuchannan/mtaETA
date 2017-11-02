@@ -147,6 +147,7 @@ const getIncomingTrains = (arr) => {
         let trains = GtfsRealtimeBindings.FeedMessage.decode(items[i]);
         parseTrains(trains);
       } catch (e) {
+        displayError();
         console.log("Unable to process all requests");
       }
     }
@@ -322,6 +323,11 @@ const display = () => {
   parent.classList.add("fade");
 };
 
+const displayError = () => {
+  let message = document.querySelector('.error_message');
+  message.classList.remove("shown");
+  message.classList.add("shown");
+};
 const clearDOM = (parent) => {
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
