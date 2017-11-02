@@ -296,6 +296,7 @@ const display = () => {
             let trainContainer = document.createElement("div");
             let routeDiv = document.createElement("div");
             let info = document.createElement("p");
+            let eta = document.createElement("p");
             let routeDivText = document.createTextNode(`${uniqueTrain.route}`);
             routeDiv.append(routeDivText);
             trainContainer.classList.add("trainContainer");
@@ -309,9 +310,13 @@ const display = () => {
 
             routeDiv.classList.add("route", `${uniqueTrain.route}`);
             info.classList.add("stop");
-            let string = `${uniqueTrain.destination} | ${uniqueTrain.etaInMinutes} minutes`;
+            let string = `${uniqueTrain.destination}`;
             info.innerText = string;
-            trainContainer.append(routeDiv, info);
+
+            let etaString = `${uniqueTrain.etaInMinutes} minutes`;
+            eta.classList.add("eta");
+            eta.innerText = etaString;
+            trainContainer.append(routeDiv, info, eta);
             directionDiv.append(trainContainer);
           }
           item.append(directionDiv);
