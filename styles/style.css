@@ -119,7 +119,7 @@
 .trainContainer {
   display: flex;
   width: 100%;
-  margin: 5px;
+  margin: 5px 0px;
 }
 
 .uptown, .downtown {
@@ -170,12 +170,17 @@
 }
 
 /* STATION BUTTONS */
-.stop{
+.stop, .eta{
   line-height: 25px;
   font-family: 'Ubuntu', sans-serif;
   font-weight: 400;
   color: white;
   margin-left: 10px;
+}
+
+.eta {
+  margin-left: auto;
+  margin-right: 20px;
 }
 
 .one, .two, .three{
