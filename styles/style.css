@@ -7,6 +7,12 @@
   }
 }
 
+@keyframes fadeinfadeout {
+  50% {
+    opacity: 1;
+  }
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -23,10 +29,26 @@
   display: flex;
   align-items: center;
   margin-left: 20px;
-  font-family: Arial;
+  font-family: 'Ubuntu', sans-serif;
   font-weight: 400;
 }
+.error_message{
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: 400;
+  opacity: 0;
+}
 
+.error_container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.shown {
+  animation: fadeinfadeout 2s ease-in-out;
+  animation-delay: .5s;
+}
 .display {
   display: flex;
   justify-content: space-around;
@@ -42,7 +64,7 @@
 
 .header {
   display: inline;
-  font-family: Arial;
+  font-family: 'Ubuntu', sans-serif;
   font-weight: 400;
   margin-left: 10px;
 }
@@ -52,26 +74,31 @@
   font-weight: 400;
 }
 
-.title_bar {
+.title_bar_container {
+  display: flex;
+  justify-content: space-between;
   color: white;
   background: #1C2541;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   position: sticky;
   top: 0;
+  height: 81px;
+}
 
+.title_bar {
+  width: 100%;
 }
 
 .fa, .fa-subway {
   font-size: 30px;
   margin-top: 19px;
-  box-shadow: 3px 3px 3px #0B132B;
 }
 
 .station {
   font-weight: 700;
   width: 45%;
-  font-family: cursive;
+  font-family: 'Ubuntu', sans-serif;
   margin: 10px;
   padding-top: 10px;
   background: #3A506B;
@@ -85,7 +112,7 @@
   display: flex;
   justify-content: center;
   color: white;
-  font-family: Arial;
+  font-family: 'Ubuntu', sans-serif;
   font-weight: 400;
 }
 
@@ -101,7 +128,7 @@
   justify-content: center;
   width: 100%;
   color: white;
-  font-family: Arial;
+  font-family: 'Ubuntu', sans-serif;
   font-weight: 400;
 }
 
@@ -120,7 +147,7 @@
   font-size: 24px;
   font-weight: 700;
   color: white;
-  font-family: Arial;
+  font-family: 'Ubuntu', sans-serif;
   margin: 5px;
   box-shadow: 3px 3px 3px #0B132B;
 }
@@ -145,7 +172,7 @@
 /* STATION BUTTONS */
 .stop{
   line-height: 25px;
-  font-family: Arial;
+  font-family: 'Ubuntu', sans-serif;
   font-weight: 400;
   color: white;
   margin-left: 10px;
