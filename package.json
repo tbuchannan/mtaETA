@@ -4,7 +4,8 @@
   "description": "simple ETA app",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build-osx": "electron-packager ./ --platform darwin --out ../dist --overwrite mtaETA [/csv/stations.csv,/csv/stops.csv]"
   },
   "author": "Terence Buchannan",
   "license": "ISC",

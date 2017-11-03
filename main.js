@@ -12,7 +12,7 @@ function createWindow() {
   });
 
   win.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
+    pathname: path.resolve(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
   }));
@@ -23,16 +23,16 @@ function createWindow() {
   });
 }
 
-  app.on('ready', createWindow);
+app.on('ready', createWindow);
 
-  app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
-  });
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
 
-  app.on('activate', () => {
-    if (win === null) {
-      createWindow();
-    }
-  });
+app.on('activate', () => {
+  if (win === null) {
+    createWindow();
+  }
+});
