@@ -6,7 +6,7 @@ const stopsCSVFilePath = path.join(__dirname,'csv/stops.csv');
 const stationsCSVFilePath = path.join(__dirname,'csv/stations.csv');
 const northBound = "N";
 const southBound = "S";
-const mapDims = 0.006;
+const mapDims = 0.015;
 const apiKey = '5478c04ea5da79c1c75aa912a1fb9fd9';
 var Promise = require('es6-promise').Promise;
 // Feed Request Settings
@@ -37,7 +37,8 @@ let feedsToCall = {};
 let feedstoCallArr = [];
 
 let stationStrings = {
-  1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven" };
+  "1": "one", "2": "two", "3": "three", "4": "four", "5": "five", "5X": "five_express",
+  "6": "six", "6X": "six_express", "7": "seven", "7X": "seven_express" };
 
 // Populate Train, Station Objects
 csv()
@@ -93,7 +94,7 @@ const getNearbyStations = (data) => {
     if (allStations.hasOwnProperty(id)) {
       let stationLat = parseFloat(allStations[id]["GTFS Latitude"]);
       let stationLong = parseFloat(allStations[id]["GTFS Longitude"]);
-      if ((Math.abs(stationLat - data.lat) <= mapDims) && (Math.abs(stationLong - data.lon) <= mapDims))  {
+      if (distance(data.lat, data.lon, stationLat, stationLong) <= 1){
         let stopId = allStations[id]["GTFS Stop ID"];
         let northID = stopId + northBound;
         let southID = stopId + southBound;
@@ -152,12 +153,12 @@ const getIncomingTrains = (arr) => {
       }
     }
   }).catch((error) => {
-    let loader = document.querySelector('.loader');
-    loader.classList.remove("hidden");
     clearTimeout(timer);
     timer = setTimeout(start, 5000);
     clearDOM();
   }).then(() => {
+    let loader = document.querySelector('.loader');
+    loader.classList.remove("hidden");
     display();
   });
 };
@@ -297,8 +298,11 @@ const display = () => {
             let routeDiv = document.createElement("div");
             let info = document.createElement("p");
             let eta = document.createElement("p");
+            let divText = document.createElement("div");
             let routeDivText = document.createTextNode(`${uniqueTrain.route}`);
-            routeDiv.append(routeDivText);
+            divText.append(routeDivText);
+            divText.classList.add("route_text");
+            routeDiv.append(divText);
             trainContainer.classList.add("trainContainer");
 
             // Prevent classNames being numbers or capital letters
@@ -309,6 +313,7 @@ const display = () => {
             }
 
             routeDiv.classList.add("route", `${uniqueTrain.route}`);
+
             info.classList.add("stop");
             let string = `${uniqueTrain.destination}`;
             info.innerText = string;
@@ -333,8 +338,28 @@ const displayError = () => {
   message.classList.remove("shown");
   message.classList.add("shown");
 };
+
 const clearDOM = (parent) => {
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
   }
+};
+
+const distance = (lat1, long1, lat2, long2) => {
+  let earthRadiusInKm = 6371;
+  let dLat = deg2rad(lat2-lat1);  // deg2rad below
+  let dLon = deg2rad(long2-long1);
+  let a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ;
+  let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  let distanceInKm = earthRadiusInKm * c; // Distance in km
+  let distanceInMiles = distanceInKm * 0.621371;
+  return distanceInMiles;
+};
+
+const deg2rad = (deg) => {
+  return deg * (Math.PI/180);
 };
