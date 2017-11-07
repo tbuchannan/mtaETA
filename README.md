@@ -10,11 +10,12 @@ Cross platform, MTA Subway scheduling desktop application built on Electron.
 
 ### Installation
 
-Install the dependencies
+###### OS-X
+https://tinyurl.com/download-mtaETA
 
-```sh
-$ npm install
-```
+###### Linux
+https://tinyurl.com/download-mtaETA-linux-x64
+
 
 ### Serve
 To run electron
