@@ -258,9 +258,11 @@ const display = () => {
         stationHeader.classList.add("stationHeader");
         let stationHeaderText = document.createTextNode(station);
 
-        stationHeader.append(stationHeaderText);
-        item.appendChild(stationHeader);
-        parent.append(item);
+        if(Object.keys(stationsETA[station]).length > 1){
+          stationHeader.append(stationHeaderText);
+          item.appendChild(stationHeader);
+          parent.append(item);
+        }
       }
 
       for (let stop in stationsETA[station]) {
