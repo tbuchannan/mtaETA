@@ -18,7 +18,7 @@
     100% { transform: rotate(360deg); }
 }
 
- body {
+body {
   -webkit-app-region: drag;
   background: #DAF0EE;
   user-select: none;
@@ -51,6 +51,7 @@
 }
 .display {
   display: flex;
+  z-index: 100;
   justify-content: space-around;
   flex-wrap: wrap;
   background: #1C2541;
@@ -84,6 +85,7 @@
   position: sticky;
   top: 0;
   height: 81px;
+  z-index: 500;
 }
 
 .title_bar {
@@ -98,6 +100,7 @@
 .station {
   font-weight: 700;
   width: 45%;
+  height: 100%;
   font-family: 'Ubuntu', sans-serif;
   margin: 10px;
   padding-top: 10px;
@@ -106,6 +109,7 @@
   border-radius: 10px;
   display: flex;
   flex-direction: column;
+  z-index: 80;
 }
 
 .stationHeader {
@@ -138,8 +142,8 @@
 }
 
 .route {
-  max-height: 50px;
-  min-width: 50px;
+  height: 50px;
+  width: 50px;
   border-radius: 50%;
   text-align: center;
   vertical-align: middle;
@@ -191,8 +195,28 @@
   background: #18963C;
 }
 
+.six_express, .five_express {
+  background: #18963C;
+  height: 35px;
+  width: 35px;
+  border-radius: 0%;
+  transform: rotate(45deg);
+  margin: 13px;
+  font-size: 22px;
+}
+
 .seven {
   background: #B71BAD;
+}
+
+.seven_express {
+  background: #B71BAD;
+  height: 35px;
+  width: 35px;
+  font-size: 22px;
+  border-radius: 0%;
+  transform: rotate(45deg);
+  margin: 13px;
 }
 
 .q, .r, .w, .n {
@@ -222,4 +246,12 @@
 
 .s {
   background: #808183;
+}
+
+.seven_express *, .five_express *, .six_express * {
+  transform: rotate(-45deg);
+  transform-style: flat;
+  height: 100%;
+  width: 100%;
+  line-height: 35px;
 }
