@@ -16,10 +16,4 @@ https://tinyurl.com/download-mtaETA
 ###### Linux
 https://tinyurl.com/download-mtaETA-linux-x64
 
-
-### Serve
-To run electron
-
-```sh
-$ npm start
-```
+Click the appropriate download link for your OS, unzip and run the mtaETA application.
