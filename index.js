@@ -163,6 +163,7 @@ const getIncomingTrains = (arr) => {
   });
 };
 
+// Parse Train data
 const parseTrains = (trains) => {
   trains.entity.forEach((train) => {
 
@@ -347,6 +348,7 @@ const clearDOM = (parent) => {
   }
 };
 
+// Distance in miles between two points given lat & lng of each
 const distance = (lat1, long1, lat2, long2) => {
   let earthRadiusInKm = 6371;
   let dLat = deg2rad(lat2-lat1);  // deg2rad below
