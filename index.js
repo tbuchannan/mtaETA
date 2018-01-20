@@ -230,10 +230,10 @@ const populateNearByStation = (station, stop, destination, stopName, route) => {
 
     let currArrival = currStationObj.arrival;
 
-    if (first === undefined || currArrival < first.arrival ) {
+    if (!first || currArrival < first.arrival ) {
       stationsETA[stopName][station][1] = first;
       stationsETA[stopName][station][0] = currStationObj;
-    } else if (second === undefined || currArrival < second.arrival) {
+    } else if (!second || currArrival < second.arrival) {
       stationsETA[stopName][station][1] = currStationObj;
     }
   }
@@ -251,7 +251,7 @@ const display = () => {
       let train = document.getElementsByClassName(`${formattedStation}`)[0];
 
       // If element hasn't been created
-      if (train === undefined ) {
+      if (!train) {
         item = document.createElement('div');
         item.classList.add("station", `${formattedStation}`);
 
