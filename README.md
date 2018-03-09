@@ -2,10 +2,6 @@
 
 Cross platform, MTA Subway scheduling desktop application built on Electron.
 
-![mainImageStill](/images/mainImageStill.png)
-
-
-
 
 #### version
 1.7.8
